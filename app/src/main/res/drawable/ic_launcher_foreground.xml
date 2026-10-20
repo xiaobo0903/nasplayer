@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <!-- NAS 机箱 -->
+    <path android:fillColor="#E8ECFF" android:pathData="M35,27h38a5,5 0 0 1 5,5v44a5,5 0 0 1 -5,5h-38a5,5 0 0 1 -5,-5v-44a5,5 0 0 1 5,-5z" />
+    <!-- 播放三角 -->
+    <path android:fillColor="#3D5AFE" android:pathData="M47,37L47,61L68,49z" />
+    <!-- 硬盘仓位与指示灯 -->
+    <path android:fillColor="#9AA6E6" android:pathData="M38,68h22v4h-22z" />
+    <path android:fillColor="#FF5C7A" android:pathData="M68,70m-2.5,0a2.5,2.5 0 1,1 5,0a2.5,2.5 0 1,1 -5,0" />
+</vector>
