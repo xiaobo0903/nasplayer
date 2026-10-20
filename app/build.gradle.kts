@@ -27,6 +27,10 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.4.1")
     implementation("androidx.media3:media3-ui:1.4.1")
     implementation("com.hierynomus:smbj:0.13.0")
-    implementation("com.rapid7.client:dcerpc:0.12.0")   // 枚举 NAS 共享列表
     implementation("org.slf4j:slf4j-android:1.7.36")
+}
+
+configurations.all {
+    exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
+    exclude(group = "org.bouncycastle", module = "bcpkix-jdk15on")
 }

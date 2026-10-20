@@ -151,7 +151,6 @@ private val Card = Color(0xFF1E1E2A)
     var pass by remember { mutableStateOf(cur?.pass ?: "") }
     var start by remember { mutableStateOf(cur?.startPath ?: "") }
     val found = remember { mutableStateListOf<LanHost>() }
-    val shares = remember { mutableStateListOf<String>() }
     var scanning by remember { mutableStateOf(false) }
     var msg by remember { mutableStateOf("") }
 
@@ -165,17 +164,6 @@ private val Card = Color(0xFF1E1E2A)
             if (found.isEmpty() && msg.isEmpty()) msg = "未发现 NAS：请确认电视与 NAS 在同一局域网，或手动输入地址"
         }
     }
-    fun fetchShares() {
-        if (host.isBlank()) { msg = "请先选择或填写 NAS 地址"; return }
-        msg = "正在获取共享列表…"
-        scope.launch {
-            try {
-                val l = withContext(Dispatchers.IO) { listShares(host.trim(), user.trim(), pass) }
-                shares.clear(); shares.addAll(l)
-                msg = if (l.isEmpty()) "没有可用的共享，请手动填写共享名" else ""
-            } catch (e: Throwable) { msg = "获取共享列表失败，可手动填写共享名：${(e.cause ?: e).message}" }
-        }
-    }
     LaunchedEffect(Unit) { if (cur == null) scan() }      // 首次使用自动扫描
     if (cur != null) BackHandler { onDone() }
 
@@ -185,7 +173,7 @@ private val Card = Color(0xFF1E1E2A)
             OutlinedTextField(host, { host = it }, label = { Text("NAS 地址，如 192.168.1.10") }, singleLine = true, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(user, { user = it }, label = { Text("用户名（留空为匿名访问）") }, singleLine = true, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(pass, { pass = it }, label = { Text("密码") }, singleLine = true, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(share, { share = it }, label = { Text("共享名，如 video") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(share, { share = it }, label = { Text("共享名，如 video、电影") }, singleLine = true, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(start, { start = it }, label = { Text("起始目录（可选，如 电影/2024）") }, singleLine = true, modifier = Modifier.fillMaxWidth())
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 TvButton("保存并连接") { if (host.isNotBlank() && share.isNotBlank()) onSave(NasConfig(host.trim(), share.trim(), user.trim(), pass, start.trim())) else msg = "地址和共享名不能为空" }
@@ -195,11 +183,9 @@ private val Card = Color(0xFF1E1E2A)
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("局域网中的 NAS", fontSize = 22.sp)
             TvButton(if (scanning) "扫描中…" else "重新扫描") { scan() }
-            found.forEach { h -> TvButton("🖥  ${h.name}  (${h.ip})") { host = h.ip; shares.clear() } }
+            found.forEach { h -> TvButton("🖥  ${h.name}  (${h.ip})") { host = h.ip } }
             Spacer(Modifier.height(12.dp))
-            Text("共享文件夹（先填好地址、账号、密码）", fontSize = 18.sp)
-            TvButton("获取共享列表") { fetchShares() }
-            shares.forEach { n -> TvButton("📂  $n") { share = n } }
+            Text("点选设备后，在左侧填写账号密码和共享名（共享名可在 NAS 管理界面的「共享文件夹」中查看）", fontSize = 16.sp, color = Color.LightGray)
             if (msg.isNotEmpty()) Text(msg, fontSize = 16.sp, color = Color(0xFFFFCC80))
         }
     }

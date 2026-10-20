@@ -2,11 +2,6 @@ package com.example.nasplayer
 
 import android.content.Context
 import android.net.ConnectivityManager
-import com.hierynomus.smbj.SMBClient
-import com.hierynomus.smbj.SmbConfig
-import com.hierynomus.smbj.auth.AuthenticationContext
-import com.rapid7.client.dcerpc.mssrvs.ServerService
-import com.rapid7.client.dcerpc.transport.SMBTransportFactories
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -14,7 +9,6 @@ import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.util.concurrent.TimeUnit
 
 data class LanHost(val ip: String, val name: String)
 
@@ -44,19 +38,6 @@ suspend fun scanLan(ctx: Context, onFound: (LanHost) -> Unit) = withContext(Disp
                     }
                 }
             }
-        }
-    }
-}
-
-/** 用账号登录后枚举 NAS 上的共享文件夹（过滤掉 C$、IPC$ 等管理共享）。阻塞调用，请在 IO 线程使用。 */
-fun listShares(host: String, user: String, pass: String): List<String> {
-    val cfg = SmbConfig.builder().withTimeout(10, TimeUnit.SECONDS).build()
-    SMBClient(cfg).use { client ->
-        client.connect(host).use { conn ->
-            val auth = if (user.isBlank()) AuthenticationContext.guest() else AuthenticationContext(user, pass.toCharArray(), "")
-            val session = conn.authenticate(auth)
-            val transport = SMBTransportFactories.SRVSVC.getTransport(session)
-            return ServerService(transport).shares0.map { it.netName }.filter { !it.endsWith("$") }
         }
     }
 }
